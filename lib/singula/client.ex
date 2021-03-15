@@ -15,37 +15,41 @@ defmodule Singula.Client do
 
   @type payload :: map | binary
 
-  @callback get(binary) :: {:ok, Singula.Response.t()} | {:error, Singula.error()}
-  def get(path, http_client \\ HTTPoison, current_time \\ &DateTime.utc_now/0) do
-    signed_request(http_client, current_time, :get, path, "", Accept: "application/json")
+  @callback get(path :: binary) :: {:ok, Singula.Response.t()} | {:error, Singula.error()}
+  def get(path, current_time \\ &DateTime.utc_now/0) do
+    signed_request(current_time, :get, path, "", [{"Accept", "application/json"}])
   end
 
-  @callback patch(binary, payload) :: {:ok, Singula.Response.t()} | {:error, Singula.error()}
-  def patch(path, data, http_client \\ HTTPoison, current_time \\ &DateTime.utc_now/0) do
+  @callback patch(path :: binary, payload) :: {:ok, Singula.Response.t()} | {:error, Singula.error()}
+  def patch(path, data, current_time \\ &DateTime.utc_now/0) do
     body = if is_map(data), do: Jason.encode!(data), else: data
 
-    signed_request(http_client, current_time, :patch, path, body,
-      "Content-Type": "application/json; charset=utf-8",
-      Accept: "application/json"
+    signed_request(
+      current_time,
+      :patch,
+      path,
+      body,
+      [{"Content-Type", "application/json; charset=utf-8"}, {"Accept", "application/json"}]
     )
   end
 
-  @callback post(binary, payload) :: {:ok, Singula.Response.t()} | {:error, Singula.error()}
-  def post(path, data, http_client \\ HTTPoison, current_time \\ &DateTime.utc_now/0) do
+  @callback post(path :: binary, payload) :: {:ok, Singula.Response.t()} | {:error, Singula.error()}
+  def post(path, data, current_time \\ &DateTime.utc_now/0) do
     body = if is_map(data), do: Jason.encode!(data), else: data
 
-    signed_request(http_client, current_time, :post, path, body,
-      "Content-Type": "application/json; charset=utf-8",
-      Accept: "application/json"
+    signed_request(
+      current_time,
+      :post,
+      path,
+      body,
+      [{"Content-Type", "application/json; charset=utf-8"}, {"Accept", "application/json"}]
     )
   end
 
-  defp signed_request(http_client, current_time, method, path, body, headers, options \\ []) do
+  defp signed_request(current_time, method, path, body, headers) do
     url = singula_url(path)
-    headers = Keyword.merge(signed_headers(method, path, current_time), headers)
-    options = Keyword.merge(options, recv_timeout: timeout())
-
-    response = http_client.request(method, url, body, headers, options)
+    headers = signed_headers(method, path, current_time) ++ headers
+    response = http_client().request(method, url, body, headers)
 
     Singula.Telemetry.emit_response_event(%{response: response})
 
@@ -62,14 +66,14 @@ defmodule Singula.Client do
     signature = :crypto.mac(:hmac, :sha256, api_secret, "#{timestamp}#{method}#{path}") |> Base.encode16()
 
     [
-      Authorization: "hmac #{api_key}:#{signature}",
-      Timestamp: timestamp
+      {"Authorization", "hmac #{api_key}:#{signature}"},
+      {"Timestamp", to_string(timestamp)}
     ]
   end
 
   defp translate_response({:error, error}), do: {:error, error}
 
-  defp translate_response({:ok, %HTTPoison.Response{body: body, headers: headers, status_code: status_code}}) do
+  defp translate_response({:ok, %{body: body, headers: headers, status_code: status_code}}) do
     response = %Singula.Response{body: body, status_code: status_code}
 
     response =
@@ -95,6 +99,6 @@ defmodule Singula.Client do
 
   defp separate_error(response), do: {:ok, response}
 
+  defp http_client, do: Application.get_env(:singula, :http_client, Singula.HTTPClient.HTTPoison)
   defp singula_url(path), do: Application.get_env(:singula, :base_url) <> path
-  defp timeout, do: Application.get_env(:singula, :timeout_ms, 10000)
 end

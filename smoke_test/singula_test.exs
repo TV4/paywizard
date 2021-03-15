@@ -2,25 +2,7 @@ defmodule SmokeTest.Singula do
   use ExUnit.Case
   require Logger
 
-  setup_all do
-    :ok = Singula.Telemetry.attach_singula_response_handler()
-    :ok = Singula.Telemetry.attach_librato_response_handler()
-
-    Application.put_all_env(
-      singula: [
-        client: Singula.Client,
-        uuid_generator: &UUID.uuid4/0,
-        base_url: System.get_env("SINGULA_BASE_URL"),
-        api_key: System.get_env("SINGULA_API_KEY"),
-        api_secret: System.get_env("SINGULA_API_SECRET"),
-        client_name: System.get_env("SINGULA_CLIENT_NAME"),
-        merchant_password: System.get_env("SINGULA_MERCHANT_PASSWORD"),
-        timeout_ms: System.get_env("SINGULA_TIMEOUT_MS", "10000") |> String.to_integer()
-      ]
-    )
-  end
-
-  setup_all [:setup_test_customer, :setup_defaults]
+  setup_all [:setup_config, :setup_test_customer, :setup_defaults]
   setup :merge_saved_test_context
 
   test "get item by id and currency", %{subscription_item_id: item_id, currency: currency} do
@@ -765,25 +747,6 @@ defmodule SmokeTest.Singula do
     assert contract_detail.payment_method_id == payment_method_id
   end
 
-  defp setup_test_customer(_context) do
-    unix_time_now = DateTime.to_unix(DateTime.utc_now())
-    user_id = "smoke_test_#{unix_time_now}"
-    external_id = to_string(unix_time_now)
-    email = "#{user_id}@bbrtest.se"
-
-    customer_id = create_test_customer(external_id, user_id, email)
-    Logger.info("Created smoke test user: #{customer_id}")
-
-    on_exit(fn -> cancel_contracts(customer_id) end)
-
-    %{
-      customer_id: customer_id,
-      email: email,
-      username: user_id,
-      vimond_id: external_id
-    }
-  end
-
   defp cancel_contracts(customer_id) do
     {:ok, contracts} = Singula.customer_contracts(customer_id)
 
@@ -817,6 +780,79 @@ defmodule SmokeTest.Singula do
 
     {:ok, customer_id} = Singula.create_customer(customer)
     customer_id
+  end
+
+  defp setup_callback_contracts do
+    [
+      client: {Singula.Client, Singula.Client},
+      http_client: {Singula.HTTPClient, Singula.HTTPClient.HTTPoison}
+    ]
+    |> setup_callback_contracts(:singula)
+  end
+
+  defp setup_callback_contracts(modules_by_key, application) do
+    Application.ensure_all_started(:hammox)
+
+    modules_by_key
+    |> Enum.each(fn
+      {key, {behaviour_name, module_name}} ->
+        mock = module_name |> to_string |> String.replace("Elixir.", "Elixir.Protected.") |> String.to_atom()
+
+        unless Code.ensure_loaded?(mock) do
+          Mox.defmock(mock, for: behaviour_name)
+        end
+
+        behaviour_name.behaviour_info(:callbacks)
+        |> Enum.each(fn {name, arity} ->
+          hammox_code = Hammox.protect({module_name, name, arity}, behaviour_name)
+          Mox.stub(mock, name, hammox_code)
+        end)
+
+        Application.put_env(application, key, mock)
+    end)
+
+    Hammox.set_mox_global()
+  end
+
+  defp setup_config(_context) do
+    :ok = Singula.Telemetry.attach_singula_response_handler()
+    :ok = Singula.Telemetry.attach_librato_response_handler()
+
+    Application.put_all_env(
+      singula: [
+        uuid_generator: &UUID.uuid4/0,
+        base_url: System.get_env("SINGULA_BASE_URL"),
+        api_key: System.get_env("SINGULA_API_KEY"),
+        api_secret: System.get_env("SINGULA_API_SECRET"),
+        client_name: System.get_env("SINGULA_CLIENT_NAME"),
+        merchant_password: System.get_env("SINGULA_MERCHANT_PASSWORD"),
+        timeout_ms: System.get_env("SINGULA_TIMEOUT_MS", "10000") |> String.to_integer()
+      ]
+    )
+
+    setup_callback_contracts()
+  end
+
+  defp setup_test_customer(_context) do
+    unix_time_now = DateTime.to_unix(DateTime.utc_now())
+    user_id = "smoke_test_#{unix_time_now}"
+    external_id = to_string(unix_time_now)
+    email = "#{user_id}@bbrtest.se"
+
+    customer_id = create_test_customer(external_id, user_id, email)
+    Logger.info("Created smoke test user: #{customer_id}")
+
+    on_exit(fn ->
+      setup_callback_contracts()
+      cancel_contracts(customer_id)
+    end)
+
+    %{
+      customer_id: customer_id,
+      email: email,
+      username: user_id,
+      vimond_id: external_id
+    }
   end
 
   defp setup_defaults(_context) do

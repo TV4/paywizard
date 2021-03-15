@@ -16,16 +16,14 @@ defmodule Singula.ClientTest do
       "https://singula.example.b17g.net/api/get/päth",
       "",
       [
-        Authorization: "hmac key:F1DDF5074C308F8AE0FBC9276B2DD4BE32BC7AD6EB5EA95A5B2DEEA3A21ADB1F",
-        Timestamp: 1_580_674_802,
-        Accept: "application/json"
-      ],
-      [recv_timeout: 10000] ->
+        {"Authorization", "hmac key:F1DDF5074C308F8AE0FBC9276B2DD4BE32BC7AD6EB5EA95A5B2DEEA3A21ADB1F"},
+        {"Timestamp", "1580674802"},
+        {"Accept", "application/json"}
+      ] ->
         {:error, %HTTPoison.Error{reason: :nxdomain}}
     end)
 
-    assert Client.get("/api/get/päth", MockHTTPClient, current_time) ==
-             {:error, %HTTPoison.Error{reason: :nxdomain}}
+    assert Client.get("/api/get/päth", current_time) == {:error, %HTTPoison.Error{reason: :nxdomain}}
   end
 
   test "handle singula error", %{current_time: current_time} do
@@ -35,11 +33,10 @@ defmodule Singula.ClientTest do
       "https://singula.example.b17g.net/api/get/päth",
       "",
       [
-        Authorization: "hmac key:F1DDF5074C308F8AE0FBC9276B2DD4BE32BC7AD6EB5EA95A5B2DEEA3A21ADB1F",
-        Timestamp: 1_580_674_802,
-        Accept: "application/json"
-      ],
-      [recv_timeout: 10000] ->
+        {"Authorization", "hmac key:F1DDF5074C308F8AE0FBC9276B2DD4BE32BC7AD6EB5EA95A5B2DEEA3A21ADB1F"},
+        {"Timestamp", "1580674802"},
+        {"Accept", "application/json"}
+      ] ->
         error = %{
           "developerMessage" => "Username smoke_200624_01 already exists",
           "errorCode" => 90074,
@@ -49,15 +46,14 @@ defmodule Singula.ClientTest do
         }
 
         {:ok,
-         %HTTPoison.Response{
+         %{
            body: Jason.encode!(error),
            status_code: 400,
-           headers: [{"Content-Type", "application/json"}],
-           request: %HTTPoison.Request{url: ""}
+           headers: [{"Content-Type", "application/json"}]
          }}
     end)
 
-    assert Client.get("/api/get/päth", MockHTTPClient, current_time) ==
+    assert Client.get("/api/get/päth", current_time) ==
              {:error,
               %Singula.Error{
                 code: 90074,
@@ -73,21 +69,19 @@ defmodule Singula.ClientTest do
       "https://singula.example.b17g.net/api/get/päth",
       "",
       [
-        Authorization: "hmac key:F1DDF5074C308F8AE0FBC9276B2DD4BE32BC7AD6EB5EA95A5B2DEEA3A21ADB1F",
-        Timestamp: 1_580_674_802,
-        Accept: "application/json"
-      ],
-      [recv_timeout: 10000] ->
+        {"Authorization", "hmac key:F1DDF5074C308F8AE0FBC9276B2DD4BE32BC7AD6EB5EA95A5B2DEEA3A21ADB1F"},
+        {"Timestamp", "1580674802"},
+        {"Accept", "application/json"}
+      ] ->
         {:ok,
-         %HTTPoison.Response{
+         %{
            body: "{\"key\":\"value\"}",
            status_code: 200,
-           headers: [{"Content-Type", "application/json"}],
-           request: %HTTPoison.Request{url: ""}
+           headers: [{"Content-Type", "application/json"}]
          }}
     end)
 
-    assert Client.get("/api/get/päth", MockHTTPClient, current_time) ==
+    assert Client.get("/api/get/päth", current_time) ==
              {:ok, %Singula.Response{body: "{\"key\":\"value\"}", json: %{"key" => "value"}, status_code: 200}}
   end
 
@@ -98,22 +92,20 @@ defmodule Singula.ClientTest do
       "https://singula.example.b17g.net/api/get/päth",
       "{\"key\":\"value\"}",
       [
-        Authorization: "hmac key:DDB91529F8F7DB674697CCB147041673AFB3810CF30A52EF147F42045D01C400",
-        Timestamp: 1_580_674_802,
-        "Content-Type": "application/json; charset=utf-8",
-        Accept: "application/json"
-      ],
-      [recv_timeout: 10000] ->
+        {"Authorization", "hmac key:DDB91529F8F7DB674697CCB147041673AFB3810CF30A52EF147F42045D01C400"},
+        {"Timestamp", "1580674802"},
+        {"Content-Type", "application/json; charset=utf-8"},
+        {"Accept", "application/json"}
+      ] ->
         {:ok,
-         %HTTPoison.Response{
+         %{
            body: "{\"key\":\"value\"}",
            status_code: 200,
-           headers: [{"Content-Type", "application/json;charset=UTF-8"}],
-           request: %HTTPoison.Request{url: ""}
+           headers: [{"Content-Type", "application/json;charset=UTF-8"}]
          }}
     end)
 
-    assert Client.patch("/api/get/päth", %{key: "value"}, MockHTTPClient, current_time) ==
+    assert Client.patch("/api/get/päth", %{key: "value"}, current_time) ==
              {:ok, %Singula.Response{body: "{\"key\":\"value\"}", json: %{"key" => "value"}, status_code: 200}}
   end
 
@@ -124,16 +116,15 @@ defmodule Singula.ClientTest do
       "https://singula.example.b17g.net/api/get/päth",
       "{\"key\":\"value\"}",
       [
-        Authorization: "hmac key:EF6FEE99F26A66493D12D350BEEC335E38B70F11F54BA46CCF688EC1AFDB8E16",
-        Timestamp: 1_580_674_802,
-        "Content-Type": "application/json; charset=utf-8",
-        Accept: "application/json"
-      ],
-      [recv_timeout: 10000] ->
-        {:ok, %HTTPoison.Response{body: "", status_code: 200, request: %HTTPoison.Request{url: ""}}}
+        {"Authorization", "hmac key:EF6FEE99F26A66493D12D350BEEC335E38B70F11F54BA46CCF688EC1AFDB8E16"},
+        {"Timestamp", "1580674802"},
+        {"Content-Type", "application/json; charset=utf-8"},
+        {"Accept", "application/json"}
+      ] ->
+        {:ok, %{body: "", status_code: 200, headers: []}}
     end)
 
-    assert Client.post("/api/get/päth", %{key: "value"}, MockHTTPClient, current_time) ==
+    assert Client.post("/api/get/päth", %{key: "value"}, current_time) ==
              {:ok, %Singula.Response{body: "", status_code: 200}}
   end
 end
