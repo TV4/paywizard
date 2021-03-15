@@ -291,17 +291,13 @@ defmodule Singula do
   end
 
   @callback change_contract(Customer.id(), Contract.contract_id(), item_id :: binary) :: :ok | {:error, error}
-  @callback change_contract(Customer.id(), Contract.contract_id(), item_id :: binary, referrer :: binary | nil) ::
+  @callback change_contract(Customer.id(), Contract.contract_id(), item_id :: binary, metadata :: MetaData.t() | nil) ::
               :ok | {:error, error}
-  def change_contract(customer_id, contract_id, item_id, referrer \\ nil) do
-    data = %{itemCode: item_id}
-
+  def change_contract(customer_id, contract_id, item_id, metadata \\ %MetaData{}) do
     data =
-      if referrer do
-        Map.put(data, :referrerId, referrer)
-      else
-        data
-      end
+      %{itemCode: item_id}
+      |> add_discount(metadata.discount)
+      |> add_referrer(metadata.referrer)
 
     with {:ok, _response} <-
            post(
@@ -370,6 +366,12 @@ defmodule Singula do
     |> Map.new()
   end
 
+  defp add_referrer(data, nil), do: data
+
+  defp add_referrer(data, referrer) do
+    Map.put(data, :referrerId, referrer)
+  end
+
   defp add_payment_method(customer_id, digest) do
     with {:ok, %Singula.Response{json: %{"paymentMethodId" => payment_method_id}}} <-
            post(
@@ -390,7 +392,7 @@ defmodule Singula do
         item_data
 
       {:referrer, referrer}, item_data ->
-        Map.put(item_data, :referrerId, referrer)
+        add_referrer(item_data, referrer)
 
       {:asset, asset}, item_data ->
         Map.merge(item_data, %{id: asset.id, name: asset.title})

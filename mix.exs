@@ -46,7 +46,7 @@ defmodule Singula.MixProject do
       {:telemetry, "~> 0.4.2"},
       {:httpoison, "~> 1.6", optional: true},
       {:mix_test_watch, "~> 1.0", only: :test},
-      {:hammox, "~> 0.2", except: :prod}
+      {:hammox, "~> 0.2", only: [:dev, :test]}
     ]
   end
 end

@@ -1888,7 +1888,62 @@ defmodule SingulaTest do
                "ff160270-5197-4c90-835c-cd1fff8b19d0",
                9_719_738,
                "180B2AD9332349E6A7A4",
-               "my referrer"
+               %Singula.MetaData{referrer: "my referrer"}
+             ) == :ok
+    end
+
+    test "succeeds with discount" do
+      MockSingulaClient
+      |> expect(
+        :post,
+        fn "/apis/contracts/v1/customer/ff160270-5197-4c90-835c-cd1fff8b19d0/contract/9719738/change",
+           %{
+             itemCode: "180B2AD9332349E6A7A4",
+             discountCode: %{discountId: "10097", promoCode: "NONE", campaignCode: "NONE", sourceCode: "NONE"}
+           } ->
+          data = %{
+            "href" => "/customer/ff160270-5197-4c90-835c-cd1fff8b19d0/contract/9719738",
+            "rel" => "Get contract details",
+            "type" => "application/json"
+          }
+
+          {:ok, %Singula.Response{body: Jason.encode!(data), json: data, status_code: 200}}
+        end
+      )
+
+      assert Singula.change_contract(
+               "ff160270-5197-4c90-835c-cd1fff8b19d0",
+               9_719_738,
+               "180B2AD9332349E6A7A4",
+               %Singula.MetaData{discount: %Singula.Discount{discount: "10097"}}
+             ) == :ok
+    end
+
+    test "succeeds with referrer and discount" do
+      MockSingulaClient
+      |> expect(
+        :post,
+        fn "/apis/contracts/v1/customer/ff160270-5197-4c90-835c-cd1fff8b19d0/contract/9719738/change",
+           %{
+             itemCode: "180B2AD9332349E6A7A4",
+             referrerId: "my referrer",
+             discountCode: %{discountId: "10097", promoCode: "NONE", campaignCode: "NONE", sourceCode: "NONE"}
+           } ->
+          data = %{
+            "href" => "/customer/ff160270-5197-4c90-835c-cd1fff8b19d0/contract/9719738",
+            "rel" => "Get contract details",
+            "type" => "application/json"
+          }
+
+          {:ok, %Singula.Response{body: Jason.encode!(data), json: data, status_code: 200}}
+        end
+      )
+
+      assert Singula.change_contract(
+               "ff160270-5197-4c90-835c-cd1fff8b19d0",
+               9_719_738,
+               "180B2AD9332349E6A7A4",
+               %Singula.MetaData{referrer: "my referrer", discount: %Singula.Discount{discount: "10097"}}
              ) == :ok
     end
   end
