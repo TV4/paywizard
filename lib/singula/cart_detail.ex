@@ -15,7 +15,7 @@ defmodule Singula.CartDetail.Discount do
     first_payment_date = Map.get(trial, :first_payment_date) || today()
 
     unless discount["indefinite"] do
-      Timex.shift(first_payment_date, months: discount["numberOfOccurrences"] - 1)
+      Timex.shift(first_payment_date, months: discount["numberOfOccurrences"])
     end
   end
 
