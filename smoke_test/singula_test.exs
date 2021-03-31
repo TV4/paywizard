@@ -698,6 +698,12 @@ defmodule SmokeTest.Singula do
                change_cost: "-340.00"
              },
              %Singula.Crossgrade{
+               change_cost: "0.00",
+               change_type: :DOWNGRADE,
+               currency: :SEK,
+               item_id: "54E0981C55FA40AF8CA6"
+             },
+             %Singula.Crossgrade{
                currency: :SEK,
                item_id: "6D3A56FF5065478ABD61",
                change_type: :DOWNGRADE,
