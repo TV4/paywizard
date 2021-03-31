@@ -67,6 +67,13 @@ defmodule Singula.ContractDetails do
 
   defp discount(nil), do: nil
 
+  defp discount(%{"discountAmount" => discount_amount, "numberOfOccurrences" => occurrences} = discount) do
+    discount_amount
+    |> amount()
+    |> Map.put(:discount_end_date, date(discount["discountEndDate"]))
+    |> Map.put(:number_of_occurrences, occurrences)
+  end
+
   defp discount(%{"discountAmount" => discount_amount} = discount) do
     discount_amount
     |> amount()
