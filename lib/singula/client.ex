@@ -51,7 +51,7 @@ defmodule Singula.Client do
     headers = signed_headers(method, path, current_time) ++ headers
     response = http_client().request(method, url, body, headers)
 
-    Singula.Telemetry.emit_response_event(%{response: response})
+    Singula.Telemetry.emit_response_event(response)
 
     translate_response(response)
   end
