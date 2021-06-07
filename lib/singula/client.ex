@@ -1,3 +1,7 @@
+defmodule Singula.Request do
+  defstruct [:method, :url, :body, :headers]
+end
+
 defmodule Singula.Response do
   defstruct [:body, :json, :status_code]
 
@@ -49,6 +53,8 @@ defmodule Singula.Client do
   defp signed_request(current_time, method, path, body, headers) do
     url = singula_url(path)
     headers = signed_headers(method, path, current_time) ++ headers
+    Singula.Telemetry.emit_request_event(%Singula.Request{method: method, url: url, body: body, headers: headers})
+
     response = http_client().request(method, url, body, headers)
 
     Singula.Telemetry.emit_response_event(response)

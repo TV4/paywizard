@@ -366,7 +366,8 @@ defmodule Singula.ContractDetailsTest do
              discount: %{amount: 69.5, currency: :SEK, discount_end_date: nil},
              start_date: ~D[2021-02-16],
              status: :ACTIVE,
-             payment_method_id: 42752
+             payment_method_id: 42752,
+             entitlements: [%Singula.Entitlement{id: 5960, name: "C More TV4"}]
            }
   end
 

@@ -14,7 +14,7 @@ defmodule SmokeTest.Singula do
                 entitlements: [%Singula.Entitlement{id: 5960, name: "C More TV4"}],
                 id: "6D3A56FF5065478ABD61",
                 minimum_term_month_count: nil,
-                name: "C More TV4",
+                name: "C More Standard -ott",
                 one_off_price: nil,
                 recurring_billing: %{amount: "139.00", month_count: 1},
                 free_trial: %Singula.FreeTrial{number_of_days: 14}
@@ -201,7 +201,7 @@ defmodule SmokeTest.Singula do
                     %Singula.CartDetail.Item{
                       cost: "449.00",
                       item_id: subscription_item_id,
-                      item_name: "C More All Sport",
+                      item_name: "C More Premium Plus -ott",
                       quantity: 1
                     }
                   ],
@@ -223,7 +223,7 @@ defmodule SmokeTest.Singula do
                     %Singula.CartDetail.Item{
                       cost: "0.00",
                       item_id: subscription_item_id,
-                      item_name: "C More TV4",
+                      item_name: "C More Standard -ott",
                       quantity: 1,
                       trial: %Singula.CartDetail.Item.Trial{
                         first_payment_amount: "139.00",
@@ -332,7 +332,7 @@ defmodule SmokeTest.Singula do
                     %Singula.CartDetail.Item{
                       cost: "0.00",
                       item_id: "6D3A56FF5065478ABD61",
-                      item_name: "C More TV4",
+                      item_name: "C More Standard -ott",
                       quantity: 1,
                       trial: %Singula.CartDetail.Item.Trial{
                         first_payment_amount: "69.50",
@@ -460,7 +460,7 @@ defmodule SmokeTest.Singula do
                  %Singula.CartDetail.Item{
                    cost: "0.00",
                    item_id: item_id,
-                   item_name: "C More TV4",
+                   item_name: "C More Standard -ott",
                    quantity: 1,
                    trial: %Singula.CartDetail.Item.Trial{
                      first_payment_amount: "139.00",
@@ -525,7 +525,7 @@ defmodule SmokeTest.Singula do
                     active: true,
                     contract_id: contract_id,
                     item_id: item_id,
-                    item_name: "C More TV4",
+                    item_name: "C More Standard -ott",
                     order_id: order_id
                   }
                 ]}
@@ -538,7 +538,7 @@ defmodule SmokeTest.Singula do
                   order_id: order_id,
                   item_id: item_id,
                   entitlements: [%Singula.Entitlement{id: 5960, name: "C More TV4"}],
-                  item_name: "C More TV4",
+                  item_name: "C More Standard -ott",
                   paid_up_to_date: Date.utc_today() |> Date.add(14),
                   recurring_billing: %{amount: 139.00, currency: :SEK, frequency: :MONTH, length: 1},
                   upcoming_billing: %{amount: 139.00, currency: :SEK, frequency: :MONTH, length: 1},
@@ -637,7 +637,7 @@ defmodule SmokeTest.Singula do
              id: contract_id,
              order_id: contract.order_id,
              item_id: "4151C241C3DD41529A87",
-             item_name: "C More All Sport",
+             item_name: "C More Premium Plus -ott",
              paid_up_to_date: Date.utc_today() |> Timex.shift(months: 1),
              recurring_billing: %{amount: 449.00, currency: :SEK, frequency: :MONTH, length: 1},
              upcoming_billing: %{amount: 449.00, currency: :SEK, frequency: :MONTH, length: 1},
@@ -667,7 +667,7 @@ defmodule SmokeTest.Singula do
              id: contract_id,
              order_id: contract.order_id,
              item_id: "4151C241C3DD41529A87",
-             item_name: "C More All Sport",
+             item_name: "C More Premium Plus -ott",
              paid_up_to_date: Date.utc_today() |> Timex.shift(months: 1),
              recurring_billing: %{amount: 449.00, currency: :SEK, frequency: :MONTH, length: 1},
              upcoming_billing: %{amount: 449.00, currency: :SEK, frequency: :MONTH, length: 1},
@@ -692,28 +692,28 @@ defmodule SmokeTest.Singula do
            |> Enum.reject(&(&1.change_type == :CROSSGRADE))
            |> Enum.sort_by(& &1.item_id) == [
              %Singula.Crossgrade{
-               currency: :SEK,
-               item_id: "180B2AD9332349E6A7A4",
+               change_cost: "-340.00",
                change_type: :DOWNGRADE,
-               change_cost: "-340.00"
+               currency: :SEK,
+               item_id: "180B2AD9332349E6A7A4"
              },
              %Singula.Crossgrade{
                change_cost: "0.00",
                change_type: :DOWNGRADE,
                currency: :SEK,
-               item_id: "54E0981C55FA40AF8CA6"
+               item_id: "3840C2B4AE794A6482AB"
              },
              %Singula.Crossgrade{
-               currency: :SEK,
-               item_id: "6D3A56FF5065478ABD61",
+               change_cost: "-310.00",
                change_type: :DOWNGRADE,
-               change_cost: "-310.00"
+               currency: :SEK,
+               item_id: "6D3A56FF5065478ABD61"
              },
              %Singula.Crossgrade{
-               currency: :SEK,
-               item_id: "9781F421A5894FC0AA96",
+               change_cost: "-200.00",
                change_type: :DOWNGRADE,
-               change_cost: "-200.00"
+               currency: :SEK,
+               item_id: "9781F421A5894FC0AA96"
              }
            ]
   end
@@ -868,7 +868,7 @@ defmodule SmokeTest.Singula do
 
     [
       currency: :SEK,
-      # C More TV4
+      # C More Standard -ott
       subscription_item_id: "6D3A56FF5065478ABD61",
       no_free_trial_item_id: "4151C241C3DD41529A87",
       # C More - IAP
