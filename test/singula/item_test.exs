@@ -20,7 +20,8 @@ defmodule Singula.ItemTest do
              category_id: 213,
              name: "PPV - 249",
              entitlements: [%Singula.Entitlement{id: 5961, name: "Matchbiljett 249 kr"}],
-             one_off_price: "149.00"
+             one_off_price: "149.00",
+             active: true
            }
   end
 
@@ -48,7 +49,8 @@ defmodule Singula.ItemTest do
              name: "C More TV4",
              entitlements: [%Singula.Entitlement{id: 5960, name: "C More TV4"}],
              recurring_billing: %{amount: "139.00", month_count: 1},
-             free_trial: %Singula.FreeTrial{number_of_days: 14}
+             free_trial: %Singula.FreeTrial{number_of_days: 14},
+             active: true
            }
   end
 
@@ -77,7 +79,8 @@ defmodule Singula.ItemTest do
              name: "Field Sales - All Sport 12 plus 12",
              entitlements: [%Singula.Entitlement{id: 5963, name: "C More All Sport"}],
              recurring_billing: %{amount: "399.00", month_count: 1},
-             minimum_term_month_count: 24
+             minimum_term_month_count: 24,
+             active: true
            }
   end
 
@@ -107,7 +110,8 @@ defmodule Singula.ItemTest do
              entitlements: [%Singula.Entitlement{id: 5963, name: "C More All Sport"}],
              recurring_billing: %{amount: "399.00", month_count: 1},
              one_off_price: "1990.00",
-             minimum_term_month_count: 24
+             minimum_term_month_count: 24,
+             active: true
            }
   end
 
@@ -136,7 +140,8 @@ defmodule Singula.ItemTest do
              minimum_term_month_count: 1,
              name: "C More - TVE",
              one_off_price: nil,
-             recurring_billing: %{amount: "0.00", month_count: 1}
+             recurring_billing: %{amount: "0.00", month_count: 1},
+             active: true
            }
   end
 end
