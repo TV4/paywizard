@@ -822,6 +822,7 @@ defmodule SmokeTest.Singula do
   end
 
   defp setup_config(_context) do
+    :ok = Singula.Telemetry.attach_singula_request_handler()
     :ok = Singula.Telemetry.attach_singula_response_handler()
     :ok = Singula.Telemetry.attach_librato_response_handler()
 
