@@ -28,6 +28,21 @@ defmodule Singula do
     end
   end
 
+  @callback delete_customer_custom_attributes(Customer.t(), list()) :: :ok | {:error, error}
+  def delete_customer_custom_attributes(customer, attributes) do
+    attributes_to_delete = Enum.map(attributes, fn key -> %{name: key, value: nil} end)
+
+    with {:ok, _response} <-
+           patch(
+             :update_customer,
+             "/apis/customers/v1/customer/#{customer.id}",
+             %{customAttributes: attributes_to_delete},
+             201
+           ) do
+      :ok
+    end
+  end
+
   @callback anonymise_customer(Customer.id()) :: :ok | {:error, error}
   def anonymise_customer(customer_id) do
     with {:ok, _response} <-

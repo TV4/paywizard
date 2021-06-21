@@ -145,6 +145,31 @@ defmodule SingulaTest do
     assert Singula.update_customer(customer) == :ok
   end
 
+  test "delete customer custom attributes" do
+    MockSingulaClient
+    |> expect(:patch, fn "/apis/customers/v1/customer/12345", payload ->
+      assert payload == %{
+               customAttributes: [
+                 %{name: "accepted_cmore_terms", value: nil},
+                 %{name: "accepted_cmore_terms_date", value: nil}
+               ]
+             }
+
+      data = %{
+        "href" => "/customer/4b7a1fb4-c36f-45bd-8142-309ea57dc3e8",
+        "rel" => "Get customer",
+        "type" => "application/json"
+      }
+
+      {:ok, %Singula.Response{body: Jason.encode!(data), json: data, status_code: 201}}
+    end)
+
+    customer = %Customer{id: "12345", first_name: "Tester"}
+
+    assert Singula.delete_customer_custom_attributes(customer, ["accepted_cmore_terms", "accepted_cmore_terms_date"]) ==
+             :ok
+  end
+
   test "anomymise customer" do
     MockSingulaClient
     |> expect(:post, fn "/apis/customers/v1/customer/12345/anonymise", "" ->
